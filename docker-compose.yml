@@ -30,9 +30,15 @@ services:
       PORT: 3001
       ADMIN_KEY: ${ADMIN_KEY:-admin-key-change-in-production}
       INVITE_EXPIRATION_DAYS: ${INVITE_EXPIRATION_DAYS:-7}
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "${API_PORT:-3001}:3001"
+    volumes:
+      # Montar código fonte para hot-reload em desenvolvimento
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - /app/node_modules
+      - /app/dist
     depends_on:
       postgres:
         condition: service_healthy

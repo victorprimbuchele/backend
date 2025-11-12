@@ -27,10 +27,16 @@ Isso irá:
 - ✅ Subir o banco de dados PostgreSQL
 - ✅ Aguardar o banco estar pronto (healthcheck)
 - ✅ Executar as migrações automaticamente
-- ✅ Iniciar a API
+- ✅ Popular o banco com dados de teste (seed)
+- ✅ Iniciar a API em modo desenvolvimento (hot-reload)
 - ✅ Verificar o healthcheck da API
 
 A API estará disponível em `http://localhost:3001`
+
+**Características do ambiente de desenvolvimento:**
+- 🔄 Hot-reload: alterações no código são refletidas automaticamente
+- 🌱 Seed automático: banco populado com dados de teste
+- 🧪 Todas as dependências de desenvolvimento disponíveis
 
 **Healthcheck**: Você pode verificar se a API está pronta acessando `http://localhost:3001/health`
 

@@ -9,6 +9,11 @@ npx prisma migrate deploy
 
 echo "✅ Migrações concluídas!"
 
-echo "🚀 Iniciando aplicação..."
-exec npm start
+echo "🌱 Executando seed para popular dados de teste..."
+npx prisma db seed || echo "⚠️  Seed não executado (pode ser normal se já houver dados)"
+
+echo "✅ Seed concluído!"
+
+echo "🚀 Iniciando aplicação em modo desenvolvimento..."
+exec npm run dev
 
