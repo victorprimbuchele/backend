@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: networking-backend-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-networking_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - networking-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: networking-backend-api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-networking_db}?schema=public
+      PORT: 3001
+      ADMIN_KEY: ${ADMIN_KEY:-admin-key-change-in-production}
+      INVITE_EXPIRATION_DAYS: ${INVITE_EXPIRATION_DAYS:-7}
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "${API_PORT:-3001}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - networking-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 3
+
+volumes:
+  postgres_data:
+
+networks:
+  networking-network:
+    driver: bridge
+
