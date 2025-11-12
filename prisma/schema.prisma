@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Member {
+  id             String      @id @default(cuid())
+  name           String
+  email          String      @unique
+  company        String?
+  joinedAt       DateTime    @default(now())
+  isActive       Boolean     @default(true)
+  referralsFrom  Referral[]  @relation("ReferralsFrom")
+  referralsTo    Referral[]  @relation("ReferralsTo")
+}
+
+model Application {
+  id         String             @id @default(cuid())
+  name       String
+  email      String
+  company    String?
+  motivation String
+  status     ApplicationStatus  @default(PENDING)
+  createdAt  DateTime           @default(now())
+  invite     Invite?
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReferralStatus {
+  NEW
+  IN_CONTACT
+  CLOSED
+  DECLINED
+}
+
+model Invite {
+  id            String       @id @default(cuid())
+  token         String       @unique
+  applicationId String       @unique
+  application   Application  @relation(fields: [applicationId], references: [id])
+  expiresAt     DateTime
+  usedAt        DateTime?
+}
+
+model Referral {
+  id                String    @id @default(cuid())
+  fromMemberId      String
+  toMemberId        String
+  companyOrContact  String
+  description       String
+  status            ReferralStatus @default(NEW)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  fromMember        Member    @relation("ReferralsFrom", fields: [fromMemberId], references: [id], onDelete: Cascade)
+  toMember          Member    @relation("ReferralsTo", fields: [toMemberId], references: [id], onDelete: Cascade)
+}
+
+
